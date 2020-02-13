@@ -348,21 +348,17 @@ class StatsEntry(object):
 
     @property
     def current_rps(self):
-        if self.stats.last_request_timestamp is None:
-            return 0
-        slice_start_time = max(int(self.stats.last_request_timestamp) - 12, int(self.stats.start_time or 0))
-
-        reqs = [self.num_reqs_per_sec.get(t, 0) for t in range(slice_start_time, int(self.stats.last_request_timestamp)-2)]
-        return avg(reqs)
+        count = 0
+        for epoch in self.num_reqs_per_sec:
+            count += self.num_reqs_per_sec[epoch]
+        return count / max(1, len(self.num_reqs_per_sec))
 
     @property
     def current_fail_per_sec(self):
-        if self.stats.last_request_timestamp is None:
-            return 0
-        slice_start_time = max(int(self.stats.last_request_timestamp) - 12, int(self.stats.start_time or 0))
-
-        reqs = [self.num_fail_per_sec.get(t, 0) for t in range(slice_start_time, int(self.stats.last_request_timestamp)-2)]
-        return avg(reqs)
+        count = 0
+        for epoch in self.num_fail_per_sec:
+            count += self.num_fail_per_sec[epoch]
+        return count / max(1, len(self.num_fail_per_sec))
 
     @property
     def total_rps(self):
